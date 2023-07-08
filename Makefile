@@ -43,7 +43,7 @@ endif
 all: $(EE_BIN_PKD)
 
 clean:
-	rm -rf $(EE_OBJS) $(EE_BIN) $(EE_BIN_PKD)
+	rm -rf $(EE_OBJS) $(EE_BIN) $(EE_BIN_PKD) iop/*.irx
 
 $(EE_BIN_PKD): $(EE_BIN)
 	$(EE_STRIP) $<
@@ -71,6 +71,7 @@ $(EE_OBJS_DIR)%.o: $(EE_ASM_DIR)%.s
 IRXTAG = $(notdir $(addsuffix _irx, $(basename $<)))
 vpath %.irx $(PS2SDK)/iop/irx/
 vpath %.irx iop/
+vpath %.irx iop/HDDLOAD
 
 $(EE_ASM_DIR)%.s: %.irx
 	@$(DIR_GUARD)
@@ -78,6 +79,7 @@ $(EE_ASM_DIR)%.s: %.irx
 
 hddload.irx: iop/HDDLOAD
 	$(MAKE) -C $< clean all
+
 # Include makefiles
 include $(PS2SDK)/samples/Makefile.pref
 include $(PS2SDK)/samples/Makefile.eeglobal
