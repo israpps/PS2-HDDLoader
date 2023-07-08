@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - '*'
+    tags:
+      - v*
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      make_args:
+        description: pass extra make argumments to control features not explicitly handled by CI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ps2dev/ps2dev:latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        apk add build-base
+    
+    - name: Compile project
+      run: |
+        make clean all ${{ github.event.inputs.make_args }}
+
+    - name: Get short SHA
+      id: slug
+      run: echo "sha8=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
+
+    - name: Get branch
+      if: github.ref != 'refs/heads/main'
+      id: brnch
+      run: | 
+        echo "BRANCH=$(echo -${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.event.repository.name }}-${{ env.SHA8 }}${{ env.BRANCH }}
+        path: HDDLOADMAN.ELF
+
+    - name: Create pre-release
+      if: github.ref == 'refs/heads/main'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        automatic_release_tag: "latest"
+        title: "Latest Development build"
+        files: |
+          *.ELF
+
+    - name: Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+           *.ELF
