@@ -11,7 +11,7 @@ EE_BIN = unpacked_$(EE_BIN_PKD)
 
 KERNEL_NOPATCH = 1 
 NEWLIB_NANO = 1
-DUMMY_TIMEZONE = 0
+DUMMY_TIMEZONE = 1
 DUMMY_LIBC_INIT = 1
 
 IOP_BINS = ps2dev9.o ps2atad.o hddload.o
@@ -71,7 +71,7 @@ $(EE_OBJS_DIR)%.o: $(EE_ASM_DIR)%.s
 IRXTAG = $(notdir $(addsuffix _irx, $(basename $<)))
 vpath %.irx $(PS2SDK)/iop/irx/
 vpath %.irx iop/
-vpath %.irx iop/HDDLOAD
+vpath %.irx iop/HDDLOAD/
 
 $(EE_ASM_DIR)%.s: %.irx
 	@$(DIR_GUARD)
