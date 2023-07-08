@@ -6,15 +6,15 @@
 # Review ps2sdk README & LICENSE files for further details.
 #
 
-IOP_BIN  = hddload.irx
 IOP_BIN_DIR = ../
+IOP_BIN  = $(IOP_BIN_DIR)hddload.irx
 IOP_SRC_DIR = src/
 IOP_INC_DIR = src/
 IOP_OBJS = hddload.o imports.o
 IOP_CFLAGS += -Os -mgpopt -G8192
 
 all: $(IOP_BIN)
-	cp $(IOP_BIN) $(IOP_BIN_DIR)
+$(info $(IOP_BIN))
 
 clean:
 	rm -rf $(IOP_OBJS)
