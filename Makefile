@@ -43,7 +43,7 @@ endif
 all: $(EE_BIN_PKD)
 
 clean:
-	rm -rf $(EE_OBJS) $(EE_BIN) $(EE_BIN_PKD)
+	rm -rf $(EE_OBJS) $(EE_BIN) $(EE_BIN_PKD) iop/*.irx
 
 $(EE_BIN_PKD): $(EE_BIN)
 	$(EE_STRIP) $<

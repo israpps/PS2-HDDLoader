@@ -7,9 +7,18 @@
 #
 
 IOP_BIN  = hddload.irx
+IOP_BIN_DIR = ../
+IOP_SRC_DIR = src/
+IOP_INC_DIR = src/
 IOP_OBJS = hddload.o imports.o
 IOP_CFLAGS += -Os -mgpopt -G8192
 
+all: $(IOP_BIN)
+	cp $(IOP_BIN) $(IOP_BIN_DIR)
+
+clean:
+	rm -rf $(IOP_OBJS)
+
 include $(PS2SDK)/Defs.make
-include Rules.bin.make
-include Rules.make
+include $(PS2SDK)/samples/Makefile.pref
+include $(PS2SDK)/samples/Makefile.iopglobal
