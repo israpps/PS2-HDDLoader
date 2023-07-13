@@ -57,3 +57,4 @@ int main(int argc, char** argv)
 #endif
 
 PS2_DISABLE_AUTOSTART_PTHREAD();
+DISABLE_EXTRA_TIMERS_FUNCTIONS();
