@@ -14,12 +14,18 @@ NEWLIB_NANO = 1
 DUMMY_TIMEZONE = 1
 DUMMY_LIBC_INIT = 1
 
+DEBUG = 1
+
 IOP_BINS = ps2dev9.o ps2atad.o hddload.o
 EE_OBJS = main.o HDDSupport.o $(IOP_BINS)
 EE_CFLAGS += -fdata-sections -ffunction-sections
 EE_LDFLAGS += -Wl,--gc-sections
 EE_INCS += -Iinclude
 EE_LIBS += -lpatches
+
+ifneq ($(DEBUG), 0)
+   EE_CFLAGS += -DDEBUG=$(DEBUG)
+endif
 
 ifeq ($(DUMMY_TIMEZONE), 1)
    EE_CFLAGS += -DDUMMY_TIMEZONE
@@ -69,15 +75,15 @@ $(EE_OBJS_DIR)%.o: $(EE_ASM_DIR)%.s
 	@$(EE_AS) $(EE_ASFLAGS) $< -o $@
 
 IRXTAG = $(notdir $(addsuffix _irx, $(basename $<)))
-vpath %.irx $(PS2SDK)/iop/irx/
 vpath %.irx iop/
+vpath %.irx $(PS2SDK)/iop/irx/
 vpath %.irx iop/HDDLOAD/
 
 $(EE_ASM_DIR)%.s: %.irx
-	@$(DIR_GUARD)
-	@bin2s $< $@ $(IRXTAG)
+	$(DIR_GUARD)
+	bin2s $< $@ $(IRXTAG)
 
-hddload.irx: iop/HDDLOAD
+iop/hddload.irx: iop/HDDLOAD
 	$(MAKE) -C $< clean all
 
 # Include makefiles

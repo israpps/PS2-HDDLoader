@@ -36,13 +36,14 @@ void CheckHDDUpdate(int device, const char *SysExecFolder){
 	}
 }
 #else
-void construct_HDDLOAD_argvc(char* CmdStr)
+void construct_HDDLOAD_argvc(char* CmdStr, int size_CmdStr)
 {
-	strcpy(CmdStr, "-osd");
+	strcpy(&CmdStr[0], "-osd\0");
 	strcpy(&CmdStr[5], "0x00100000");
 	strcpy(&CmdStr[16], "-stat");
 	sprintf(&CmdStr[22], "%p", HDDLoadStatArea);
-	CmdStr[sizeof(CmdStr)-1]='\0';
+	CmdStr[size_CmdStr-1]='\0';
+	//sprintf("%s\0%s\0%s\0%p\0", "-osd", "0x00100000", "-stat", HDDLoadStatArea);
 }
 
 #endif

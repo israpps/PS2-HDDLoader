@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "*.make": "makefile",
-        "hddsupport.h": "c"
+        "hddsupport.h": "c",
+        "sbv_patches.h": "c",
+        "debug.h": "c",
+        "atad.h": "c",
+        "iopcontrol.h": "c"
     }
 }

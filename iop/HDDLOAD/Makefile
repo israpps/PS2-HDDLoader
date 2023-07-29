@@ -14,8 +14,10 @@ IOP_OBJS = hddload.o imports.o
 IOP_CFLAGS += -Os -mgpopt -G8192
 
 all: $(IOP_BIN)
-$(info $(IOP_BIN))
 
+ifneq ($(DEBUG), 0)
+  IOP_CFLAGS += -DDEBUG=$(DEBUG)
+endif
 clean:
 	rm -rf $(IOP_OBJS)
 

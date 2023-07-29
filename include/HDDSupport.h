@@ -2,7 +2,7 @@
 void CheckHDDUpdate(int device, const char *SysExecFolder);
 #else
 extern unsigned char IsHddSupportEnabled;
-void construct_HDDLOAD_argvc(char* CmdStr);
+void construct_HDDLOAD_argvc(char* CmdStr, int size_CmdStr);
 #endif
 int GetHddSupportEnabledStatus(void);
 int GetHddUpdateStatus(void);

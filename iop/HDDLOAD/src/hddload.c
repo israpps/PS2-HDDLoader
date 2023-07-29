@@ -9,9 +9,10 @@
 #include <sysclib.h>
 #include <sysmem.h>
 #include <thbase.h>
-
+#define MODNAME "hddload"
 #ifdef DEBUG
-#define DPRINTF(x...) printf(x)
+#define DPRINTF(format, args...) \
+	printf(MODNAME ": " format, ##args)
 #else
 #define DPRINTF(x...)
 #endif
@@ -28,6 +29,8 @@ static void HDDBootError(int result);
 static void FinishHDDLoad(int result);
 static int ReadMBR(unsigned char *buffer, unsigned int lba, unsigned int count);
 static void HDDLOADThread(void *arg);
+
+IRX_ID(MODNAME, 1, 0);
 
 int _start(int argc, char *argv[])
 {
@@ -85,6 +88,7 @@ int _start(int argc, char *argv[])
 		}
 		else
 		{
+			DPRINTF("ERROR CREATING THREAD\n");
 			dev9Shutdown();
 			result = MODULE_NO_RESIDENT_END;
 		}
@@ -114,6 +118,7 @@ static void SendResultCode(int result)
 
 static void HDDBootError(int result)
 {
+	DPRINTF("%s: %d\n", __FUNCTION__, result);
 	dev9Shutdown();
 	SendResultCode(result);
 	SleepThread();
@@ -125,7 +130,11 @@ static void FinishHDDLoad(int result)
 
 	value=*(*(vu8 **)0x000003c0);	//Access the system configuration storage, which is set up by EECONF.
 
-	if(!(value&2)) dev9Shutdown();	//If HDD support is disabled, switch off the DEV9 interface.
+	if(!(value&2)) 
+	{
+		DPRINTF("HDD support disabled. shutting down DEV9\n");
+		dev9Shutdown();	//If HDD support is disabled, switch off the DEV9 interface.
+	}
 	SendResultCode(result);
 	SleepThread();
 }
@@ -162,13 +171,13 @@ static void HDDLOADThread(void *arg)
 	u8 *buffer;
 	void *DecryptedKELF;
 
-	DPRINTF("HDL:hdd load thread start.(01/06/10)\n");
+	DPRINTF("hdd load thread start.(01/06/10)\n");
 
 	SendResultCode(0);
 
-	DPRINTF("HDL:init ata\n");
+	DPRINTF("init ata\n");
 	if((devinfo = ata_get_devinfo(0)) == NULL){
-		DPRINTF("HDL:ATA initialization failed.\n");
+		DPRINTF("ATA initialization failed.\n");
 		HDDBootError(-1);
 	}
 
@@ -182,14 +191,14 @@ static void HDDLOADThread(void *arg)
 		HDDBootError(-2);
 	}
 
-	DPRINTF("HDL:read 0 sec\n");
+	DPRINTF("read 0 sec\n");
 	if(ata_device_sector_io(0, SectorBuffer, 0, 1, ATA_DIR_READ) != 0)
 	{
 		DPRINTF("cannot read sector 0\n");
 		HDDBootError(-3);
 	}
 
-	DPRINTF("HDL:osdstart %lx osdsize %lx\n", SectorBuffer[76], SectorBuffer[77]);
+	DPRINTF("osdstart %lx osdsize %lx\n", SectorBuffer[76], SectorBuffer[77]);
 
 	BufferSize=SectorBuffer[77]<<9;
 
@@ -214,7 +223,7 @@ static void HDDLOADThread(void *arg)
 
 	if((buffer[0] == 1) && (buffer[3] & 0x04))
 	{
-		DPRINTF("HDL:securiyt decript.\n");
+		DPRINTF("securiyt decript.\n");
 
 		if((DecryptedKELF=SecrDiskBootFile(buffer))==NULL)
 		{
@@ -240,12 +249,12 @@ static void HDDLOADThread(void *arg)
 		FreeSysMemory(buffer);
 		CpuResumeIntr(OldState);
 
-		DPRINTF("HDL:END ver.1.00\n");
+		DPRINTF("END ver.1.00\n");
 
 		FinishHDDLoad(1);
 	}
 	else{
-		DPRINTF("HDL:security contents error.\n");
+		DPRINTF("security contents error.\n");
 		CpuSuspendIntr(&OldState);
 		FreeSysMemory(buffer);
 		CpuResumeIntr(OldState);
